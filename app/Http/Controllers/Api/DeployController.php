@@ -448,19 +448,15 @@ class DeployController extends Controller
     private function testFileExists(string $path): bool
     {
         try {
-            $process = new Process(['test', '-f', $path, '&&', 'test', '-x', $path], base_path());
+            // Экранируем путь для безопасности
+            $escapedPath = escapeshellarg($path);
+            // Используем sh -c для выполнения команды test
+            $process = new Process(['sh', '-c', "test -f {$escapedPath} && test -x {$escapedPath}"], base_path());
             $process->run();
             return $process->isSuccessful();
         } catch (\Exception $e) {
-            // Если test не доступен, пробуем через sh -c
-            try {
-                $process = new Process(['sh', '-c', "test -f '{$path}' && test -x '{$path}'"], base_path());
-                $process->run();
-                return $process->isSuccessful();
-            } catch (\Exception $e2) {
-                // В крайнем случае используем PHP функции
-                return @is_file($path) || @is_executable($path) || @file_exists($path);
-            }
+            // В крайнем случае используем PHP функции
+            return @is_file($path) || @is_executable($path) || @file_exists($path);
         }
     }
 
