@@ -359,63 +359,68 @@ class DeployController extends Controller
     {
         // Проверяем переменную окружения (через getenv для работы с кешем)
         $composerPath = getenv('COMPOSER_PATH') ?: env('COMPOSER_PATH');
-        if ($composerPath) {
-            // Проверяем реальный путь (работает с симлинками)
-            $realPath = realpath($composerPath);
-            if ($realPath && is_executable($realPath)) {
-                return $realPath;
-            }
-            // Если не удалось resolve, пробуем исходный путь
-            if (file_exists($composerPath) || is_executable($composerPath)) {
-                return $composerPath;
+        if ($composerPath && $composerPath !== '') {
+            // Убираем пробелы и проверяем существование
+            $composerPath = trim($composerPath);
+            if (@is_file($composerPath) || @is_executable($composerPath) || @is_link($composerPath)) {
+                $resolved = @realpath($composerPath);
+                Log::info("📦 Composer найден через COMPOSER_PATH: " . ($resolved ?: $composerPath));
+                return $resolved ?: $composerPath;
             }
         }
 
-        // Локальный composer в проекте
-        $localComposer = base_path('bin/composer');
-        if (file_exists($localComposer)) {
-            return realpath($localComposer) ?: $localComposer;
-        }
+        // Получаем версию PHP для поиска composer-phpX.X
+        $phpMajor = PHP_MAJOR_VERSION;
+        $phpMinor = PHP_MINOR_VERSION;
+        $phpVersion = "{$phpMajor}.{$phpMinor}";
 
-        // Стандартные пути (проверяем сначала, так как они наиболее вероятны)
-        // Проверяем версию PHP и используем соответствующую версию composer если есть
-        $phpVersion = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+        // Стандартные пути в порядке приоритета
         $standardPaths = [
-            "/usr/local/bin/composer-php{$phpVersion}", // composer-php8.2, composer-php8.1 и т.д.
+            "/usr/local/bin/composer-php{$phpVersion}", // composer-php8.2
             '/usr/local/bin/composer',
             '/usr/bin/composer',
             '/opt/composer/composer',
         ];
 
+        // Проверяем каждый путь
         foreach ($standardPaths as $path) {
-            // Проверяем через realpath для работы с симлинками
-            $realPath = @realpath($path);
-            if ($realPath && (file_exists($realPath) || is_executable($realPath))) {
-                return $realPath;
+            // Проверяем существование файла/ссылки/исполняемого
+            if (@is_file($path) || @is_executable($path) || @is_link($path) || @file_exists($path)) {
+                $resolved = @realpath($path);
+                $finalPath = $resolved ?: $path;
+                Log::info("📦 Composer найден: {$finalPath}");
+                return $finalPath;
             }
-            // Если realpath не сработал, проверяем напрямую (для симлинков)
-            if (file_exists($path) || is_executable($path) || is_link($path)) {
-                return $path;
-            }
+        }
+
+        // Локальный composer в проекте
+        $localComposer = base_path('bin/composer');
+        if (@is_file($localComposer) || @file_exists($localComposer)) {
+            $resolved = @realpath($localComposer);
+            Log::info("📦 Composer найден локально: " . ($resolved ?: $localComposer));
+            return $resolved ?: $localComposer;
         }
 
         // Ищем через which (последний вариант)
-        $process = new Process(['which', 'composer'], base_path());
-        $process->run();
-        if ($process->isSuccessful()) {
-            $path = trim($process->getOutput());
-            if ($path) {
-                $realPath = @realpath($path);
-                if ($realPath && (file_exists($realPath) || is_executable($realPath))) {
-                    return $realPath;
-                }
-                if (file_exists($path) || is_executable($path) || is_link($path)) {
-                    return $path;
+        try {
+            $process = new Process(['which', 'composer'], base_path());
+            $process->run();
+            if ($process->isSuccessful()) {
+                $path = trim($process->getOutput());
+                if ($path && $path !== '') {
+                    if (@is_file($path) || @is_executable($path) || @is_link($path) || @file_exists($path)) {
+                        $resolved = @realpath($path);
+                        Log::info("📦 Composer найден через which: " . ($resolved ?: $path));
+                        return $resolved ?: $path;
+                    }
                 }
             }
+        } catch (\Exception $e) {
+            // Игнорируем ошибку which
         }
 
         // Если ничего не найдено, возвращаем null (будет ошибка)
+        Log::error("📦 Composer не найден. Проверенные пути: " . implode(', ', $standardPaths));
         return null;
     }
 
