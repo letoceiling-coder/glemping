@@ -313,9 +313,20 @@ class DeployController extends Controller
             
             Log::info('📦 Composer path: ' . $composerPath);
 
-            // Всегда используем полный путь к composer и вызываем через php
-            // Это гарантирует что composer будет найден независимо от PATH
-            $command = [$phpPath, $composerPath];
+            // Определяем как запускать composer
+            // Если это .phar файл или имя содержит "phar" - запускаем через php
+            // Иначе (обычный исполняемый скрипт) - запускаем напрямую
+            $isPhar = str_ends_with($composerPath, '.phar') || 
+                      str_contains($composerPath, 'composer.phar') ||
+                      !@is_executable($composerPath);
+            
+            if ($isPhar) {
+                // .phar файл требует php
+                $command = [$phpPath, $composerPath];
+            } else {
+                // Исполняемый скрипт запускаем напрямую
+                $command = [$composerPath];
+            }
 
             $command = array_merge($command, [
                 'install',
