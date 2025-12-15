@@ -373,7 +373,8 @@ class Deploy extends Command
 
         $branch = trim($process->getOutput());
 
-        $this->line('  Отправляем запрос на: ' . $deployUrl . '/api/deploy');
+        $deployEndpoint = $deployUrl . '/api/v1/deploy';
+        $this->line('  Отправляем запрос на: ' . $deployEndpoint);
 
         $client = Http::timeout(300) // 5 минут
             ->withHeaders([
@@ -387,7 +388,7 @@ class Deploy extends Command
             $client->withoutVerifying();
         }
 
-        $response = $client->post($deployUrl . '/api/deploy', [
+        $response = $client->post($deployEndpoint, [
             'commit_hash' => $commitHash,
             'repository' => self::REPOSITORY_URL,
             'branch' => $branch,
@@ -407,11 +408,12 @@ class Deploy extends Command
             
             if ($status === 405) {
                 throw new \Exception(
-                    "Метод не поддерживается (405): Маршрут /api/deploy не найден или не поддерживает POST.\n" .
+                    "Метод не поддерживается (405): Маршрут /api/v1/deploy не найден или не поддерживает POST.\n" .
                     "Убедитесь, что:\n" .
                     "1. Код обновлен на сервере (выполните: git pull origin main)\n" .
                     "2. Кеш маршрутов очищен (php artisan route:clear)\n" .
-                    "3. Файл routes/api.php содержит маршрут deploy"
+                    "3. Файл routes/api.php содержит маршрут deploy\n" .
+                    "4. Проверьте маршрут командой: php artisan route:list | grep deploy"
                 );
             }
 
