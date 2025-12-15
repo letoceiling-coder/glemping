@@ -399,11 +399,20 @@ class Deploy extends Command
         if ($response->failed()) {
             $status = $response->status();
             $body = $response->json();
-
             $errorMessage = $body['message'] ?? "HTTP {$status}";
             
             if ($status === 403) {
                 throw new \Exception("Доступ запрещен: {$errorMessage}. Проверьте DEPLOY_TOKEN в .env");
+            }
+            
+            if ($status === 405) {
+                throw new \Exception(
+                    "Метод не поддерживается (405): Маршрут /api/deploy не найден или не поддерживает POST.\n" .
+                    "Убедитесь, что:\n" .
+                    "1. Код обновлен на сервере (выполните: git pull origin main)\n" .
+                    "2. Кеш маршрутов очищен (php artisan route:clear)\n" .
+                    "3. Файл routes/api.php содержит маршрут deploy"
+                );
             }
 
             throw new \Exception("Ошибка сервера ({$status}): {$errorMessage}");
