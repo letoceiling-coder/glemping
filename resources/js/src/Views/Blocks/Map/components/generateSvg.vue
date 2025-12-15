@@ -27,7 +27,7 @@
                     <pattern id="alert-1" patternContentUnits="objectBoundingBox" width="1" height="1">
                         <use :xlink:href="`#alert-image-${offer.id}`" transform="translate(-0.0595454) scale(0.00078064)"/>
                     </pattern>
-                    <image :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="offer.images?.[0]?.webp || ''"/>
+                    <image v-if="getOfferImageWebp(offer)" :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="getOfferImageWebp(offer)"/>
                 </defs>
             </g>
 
@@ -71,6 +71,13 @@ name: "generateSvg",
         },
         out(e){
             $(e.target).removeClass('active')
+        },
+        getOfferImageWebp(offer) {
+            if (!offer || !offer.images || !Array.isArray(offer.images) || offer.images.length === 0) {
+                return '';
+            }
+            const firstImage = offer.images[0];
+            return (firstImage && firstImage.webp) ? firstImage.webp : '';
         }
     }
 }
