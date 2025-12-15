@@ -307,3 +307,10 @@ Route::post('email/send', [\App\Http\Controllers\Api\v1\EmailController::class, 
 Route::get('test', [\App\Http\Controllers\Api\v1\TestController::class, 'index']);
 
 Route::post('leave-request', [\App\Http\Controllers\Api\v1\Form\LeaveRequestController::class,'send']);
+
+/////////////////////////////////////////////////DeployController/////////////////////////////////////////////////////////////////////
+///
+Route::post('deploy', [\App\Http\Controllers\Api\DeployController::class, 'deploy'])
+    ->middleware(\App\Http\Middleware\VerifyDeployToken::class);
+///
+//////////////////////////////////////////////END DeployController////////////////////////////////////////////////////////////////////
