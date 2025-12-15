@@ -1,0 +1,52 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('services', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->json('description');
+            $table->integer('price');
+            $table->unsignedBigInteger('image_id');
+            $table->foreign('image_id')
+                ->references('id')
+                ->on('images')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+        });
+
+        Schema::create('image_service', function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignIdFor(\App\Models\Image::class)
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+            $table->foreignIdFor(\App\Models\Service::class)
+                ->constrained()
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('services');
+    }
+};

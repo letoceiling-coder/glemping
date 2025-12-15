@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'Cakra';
+    src: url('../fonts/Cakra/Cakra-Normal.otf'),
+    url('../fonts/Cakra/Cakra-Normal.woff2') format('woff2'),
+    url('../fonts/Cakra/Cakra-Normal.woff') format('woff'),
+    url('../fonts/Cakra/Cakra-Normal.otf') format('otf');
+
+}

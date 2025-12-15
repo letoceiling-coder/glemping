@@ -1,0 +1,57 @@
+composer create-project "laravel/laravel" telegraph
+cd telegraph
+composer require laravel/ui
+php artisan ui bootstrap --auth
+
+composer require laravel/telescope --dev
+php artisan telescope:install
+
+composer require defstudio/telegraph
+php artisan vendor:publish --tag="telegraph-migrations"
+php artisan vendor:publish --tag="telegraph-config"
+
+php artisan passport:install
+
+
+php artisan migrate
+
+
+Добавление БОТА *требуется ключ бота
+ php artisan telegraph:new-bot
+
+APP_URL=ДОБАВИТЬ ДОМЕН
+php artisan telegraph:set-webhook
+
+
+swagger-generate
+php artisan l5-swagger:generate
+
+
+
+php8.2 artisan key:generate
+php8.2 artisan migrate
+php8.2 artisan passport:install
+php8.2 artisan optimize:clear
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+watch: {
+        'storage.media.sort.folder': {
+            handler: function (folder) {
+                if (folder) {
+                    this.getImages()
+
+                    this.$parent.changeComponent('files')
+                } else {
+
+                }
+
+            },
+            deep: true,
+            immediate: true
+        },
+}
+https://packagist.org/packages/damilaredev/laravel-email
