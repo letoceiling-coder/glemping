@@ -308,16 +308,16 @@ class DeployController extends Controller
             Log::info('📦 Устанавливаем зависимости через Composer...');
             Log::info('📦 Composer path: ' . $composerPath);
 
-            // Если composer это полный путь к файлу (начинается с /)
-            if ($composerPath && str_starts_with($composerPath, '/')) {
-                // Это полный путь, вызываем напрямую через php
-                $command = [$phpPath, $composerPath];
-            } elseif ($composerPath && file_exists($composerPath)) {
-                // Это относительный путь к файлу, вызываем через php
-                $command = [$phpPath, $composerPath];
+            // Composer может быть либо исполняемым скриптом (composer.phar), либо командой из PATH
+            // Если это полный путь к файлу (начинается с /) или файл существует
+            if ($composerPath && (str_starts_with($composerPath, '/') || file_exists($composerPath))) {
+                // Полный путь к composer.phar - вызываем через php
+                $fullPath = realpath($composerPath) ?: $composerPath;
+                $command = [$phpPath, $fullPath];
             } else {
-                // Это команда из PATH, вызываем через php
-                $command = [$phpPath, $composerPath ?: 'composer'];
+                // Это команда из PATH (/usr/local/bin/composer) - используем напрямую
+                // composer сам является исполняемым скриптом и использует системный PHP
+                $command = [$composerPath ?: 'composer'];
             }
 
             $command = array_merge($command, [
