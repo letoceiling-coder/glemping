@@ -357,10 +357,18 @@ class DeployController extends Controller
      */
     private function findComposer(): ?string
     {
-        // Проверяем переменную окружения
-        $composerPath = env('COMPOSER_PATH');
-        if ($composerPath && file_exists($composerPath)) {
-            return realpath($composerPath) ?: $composerPath;
+        // Проверяем переменную окружения (через getenv для работы с кешем)
+        $composerPath = getenv('COMPOSER_PATH') ?: env('COMPOSER_PATH');
+        if ($composerPath) {
+            // Проверяем реальный путь (работает с симлинками)
+            $realPath = realpath($composerPath);
+            if ($realPath && is_executable($realPath)) {
+                return $realPath;
+            }
+            // Если не удалось resolve, пробуем исходный путь
+            if (file_exists($composerPath) || is_executable($composerPath)) {
+                return $composerPath;
+            }
         }
 
         // Локальный composer в проекте
@@ -377,8 +385,14 @@ class DeployController extends Controller
         ];
 
         foreach ($standardPaths as $path) {
-            if (file_exists($path)) {
-                return realpath($path) ?: $path;
+            // Проверяем через realpath для работы с симлинками
+            $realPath = @realpath($path);
+            if ($realPath && (file_exists($realPath) || is_executable($realPath))) {
+                return $realPath;
+            }
+            // Если realpath не сработал, проверяем напрямую (для симлинков)
+            if (file_exists($path) || is_executable($path) || is_link($path)) {
+                return $path;
             }
         }
 
@@ -387,8 +401,14 @@ class DeployController extends Controller
         $process->run();
         if ($process->isSuccessful()) {
             $path = trim($process->getOutput());
-            if ($path && file_exists($path)) {
-                return realpath($path) ?: $path;
+            if ($path) {
+                $realPath = @realpath($path);
+                if ($realPath && (file_exists($realPath) || is_executable($realPath))) {
+                    return $realPath;
+                }
+                if (file_exists($path) || is_executable($path) || is_link($path)) {
+                    return $path;
+                }
             }
         }
 
