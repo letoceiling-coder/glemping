@@ -400,11 +400,18 @@ class DeployController extends Controller
             }
         }
 
-        // Локальный composer в проекте
-        $localComposer = base_path('bin/composer');
-        if ($this->testFileExists($localComposer)) {
-            Log::info("📦 Composer найден локально: {$localComposer}");
-            return $localComposer;
+        // Локальный composer в проекте (проверяем несколько возможных путей)
+        $localComposerPaths = [
+            base_path('bin/composer'),           // bin/composer
+            base_path('vendor/bin/composer'),    // vendor/bin/composer (если установлен через composer)
+            base_path('composer.phar'),          // composer.phar в корне
+        ];
+        
+        foreach ($localComposerPaths as $localComposer) {
+            if ($this->testFileExists($localComposer)) {
+                Log::info("📦 Composer найден локально: {$localComposer}");
+                return $localComposer;
+            }
         }
 
         // Ищем через which/comand -v (последний вариант)
