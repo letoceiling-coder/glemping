@@ -60,7 +60,7 @@
                         <div class="col-6 flex column jc-center ai-center">
                             <p>Заселение / выселение</p>
                             <div class="price">
-                                13:00 / 10:00
+                                13:30 / 10:30
                             </div>
                         </div>
                     </div>
