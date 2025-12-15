@@ -306,14 +306,18 @@ class DeployController extends Controller
             $composerPath = $this->findComposer();
 
             Log::info('📦 Устанавливаем зависимости через Composer...');
+            Log::info('📦 Composer path: ' . $composerPath);
 
-            $command = [$phpPath];
-            
-            // Если composer это файл, используем его с php
-            if ($composerPath && !str_contains($composerPath, 'composer')) {
-                $command[] = $composerPath;
+            // Если composer это полный путь к файлу (начинается с /)
+            if ($composerPath && str_starts_with($composerPath, '/')) {
+                // Это полный путь, вызываем напрямую через php
+                $command = [$phpPath, $composerPath];
+            } elseif ($composerPath && file_exists($composerPath)) {
+                // Это относительный путь к файлу, вызываем через php
+                $command = [$phpPath, $composerPath];
             } else {
-                $command[] = $composerPath ?: 'composer';
+                // Это команда из PATH, вызываем через php
+                $command = [$phpPath, $composerPath ?: 'composer'];
             }
 
             $command = array_merge($command, [
@@ -323,6 +327,8 @@ class DeployController extends Controller
                 '--no-interaction',
                 '--no-scripts',
             ]);
+
+            Log::info('📦 Command: ' . implode(' ', $command));
 
             $process = new Process($command, base_path());
             $process->setTimeout(600); // 10 минут
@@ -370,7 +376,10 @@ class DeployController extends Controller
         $process = new Process(['which', 'composer'], base_path());
         $process->run();
         if ($process->isSuccessful()) {
-            return trim($process->getOutput());
+            $path = trim($process->getOutput());
+            if (file_exists($path)) {
+                return $path;
+            }
         }
 
         // Стандартные пути
