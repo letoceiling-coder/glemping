@@ -371,12 +371,11 @@ class DeployController extends Controller
         // Проверяем переменную окружения (через getenv для работы с кешем)
         $composerPath = getenv('COMPOSER_PATH') ?: env('COMPOSER_PATH');
         if ($composerPath && $composerPath !== '') {
-            // Убираем пробелы и проверяем существование
             $composerPath = trim($composerPath);
-            if (@is_file($composerPath) || @is_executable($composerPath) || @is_link($composerPath)) {
-                $resolved = @realpath($composerPath);
-                Log::info("📦 Composer найден через COMPOSER_PATH: " . ($resolved ?: $composerPath));
-                return $resolved ?: $composerPath;
+            // Проверяем через shell команду test (работает даже если PHP не видит файл)
+            if ($this->testFileExists($composerPath)) {
+                Log::info("📦 Composer найден через COMPOSER_PATH: {$composerPath}");
+                return $composerPath;
             }
         }
 
@@ -393,46 +392,76 @@ class DeployController extends Controller
             '/opt/composer/composer',
         ];
 
-        // Проверяем каждый путь
+        // Проверяем каждый путь через shell (надежнее чем PHP функции)
         foreach ($standardPaths as $path) {
-            // Проверяем существование файла/ссылки/исполняемого
-            if (@is_file($path) || @is_executable($path) || @is_link($path) || @file_exists($path)) {
-                $resolved = @realpath($path);
-                $finalPath = $resolved ?: $path;
-                Log::info("📦 Composer найден: {$finalPath}");
-                return $finalPath;
+            if ($this->testFileExists($path)) {
+                Log::info("📦 Composer найден: {$path}");
+                return $path;
             }
         }
 
         // Локальный composer в проекте
         $localComposer = base_path('bin/composer');
-        if (@is_file($localComposer) || @file_exists($localComposer)) {
-            $resolved = @realpath($localComposer);
-            Log::info("📦 Composer найден локально: " . ($resolved ?: $localComposer));
-            return $resolved ?: $localComposer;
+        if ($this->testFileExists($localComposer)) {
+            Log::info("📦 Composer найден локально: {$localComposer}");
+            return $localComposer;
         }
 
-        // Ищем через which (последний вариант)
-        try {
-            $process = new Process(['which', 'composer'], base_path());
-            $process->run();
-            if ($process->isSuccessful()) {
-                $path = trim($process->getOutput());
-                if ($path && $path !== '') {
-                    if (@is_file($path) || @is_executable($path) || @is_link($path) || @file_exists($path)) {
-                        $resolved = @realpath($path);
-                        Log::info("📦 Composer найден через which: " . ($resolved ?: $path));
-                        return $resolved ?: $path;
+        // Ищем через which/comand -v (последний вариант)
+        $commands = ['command', 'which'];
+        foreach ($commands as $cmd) {
+            try {
+                $process = new Process([$cmd, '-v', 'composer-php' . $phpVersion], base_path());
+                $process->run();
+                if ($process->isSuccessful()) {
+                    $path = trim($process->getOutput());
+                    if ($path && $path !== '' && $this->testFileExists($path)) {
+                        Log::info("📦 Composer найден через {$cmd}: {$path}");
+                        return $path;
                     }
                 }
+                
+                // Пробуем обычный composer
+                $process = new Process([$cmd, '-v', 'composer'], base_path());
+                $process->run();
+                if ($process->isSuccessful()) {
+                    $path = trim($process->getOutput());
+                    if ($path && $path !== '' && $this->testFileExists($path)) {
+                        Log::info("📦 Composer найден через {$cmd}: {$path}");
+                        return $path;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Игнорируем ошибку
             }
-        } catch (\Exception $e) {
-            // Игнорируем ошибку which
         }
 
         // Если ничего не найдено, возвращаем null (будет ошибка)
         Log::error("📦 Composer не найден. Проверенные пути: " . implode(', ', $standardPaths));
         return null;
+    }
+
+    /**
+     * Проверка существования файла через shell команду test
+     * Это более надежно чем PHP функции, т.к. работает даже если PHP не видит файл из-за прав
+     */
+    private function testFileExists(string $path): bool
+    {
+        try {
+            $process = new Process(['test', '-f', $path, '&&', 'test', '-x', $path], base_path());
+            $process->run();
+            return $process->isSuccessful();
+        } catch (\Exception $e) {
+            // Если test не доступен, пробуем через sh -c
+            try {
+                $process = new Process(['sh', '-c', "test -f '{$path}' && test -x '{$path}'"], base_path());
+                $process->run();
+                return $process->isSuccessful();
+            } catch (\Exception $e2) {
+                // В крайнем случае используем PHP функции
+                return @is_file($path) || @is_executable($path) || @file_exists($path);
+            }
+        }
     }
 
     /**
