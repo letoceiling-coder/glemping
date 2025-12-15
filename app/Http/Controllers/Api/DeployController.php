@@ -600,6 +600,22 @@ class DeployController extends Controller
      */
     private function clearAllCaches(string $phpPath): void
     {
+        // Сначала удаляем файлы кеша напрямую, чтобы избежать загрузки классов из кеша
+        $cacheFiles = [
+            base_path('bootstrap/cache/config.php'),
+            base_path('bootstrap/cache/routes.php'),
+            base_path('bootstrap/cache/routes-v7.php'),
+            base_path('bootstrap/cache/services.php'),
+            base_path('bootstrap/cache/packages.php'),
+        ];
+
+        foreach ($cacheFiles as $file) {
+            if (file_exists($file)) {
+                @unlink($file);
+            }
+        }
+
+        // Теперь запускаем команды очистки кеша
         $commands = [
             'config:clear',
             'cache:clear',
@@ -609,8 +625,13 @@ class DeployController extends Controller
         ];
 
         foreach ($commands as $command) {
-            $process = new Process([$phpPath, 'artisan', $command], base_path());
-            $process->run();
+            try {
+                $process = new Process([$phpPath, 'artisan', $command], base_path());
+                $process->run();
+                // Игнорируем ошибки, если команда не может выполниться из-за отсутствующих классов
+            } catch (\Exception $e) {
+                // Продолжаем даже при ошибках
+            }
         }
 
         Log::info('✅ Кеши очищены');
