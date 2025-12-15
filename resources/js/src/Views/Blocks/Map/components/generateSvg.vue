@@ -89,71 +89,26 @@ export default {
             
             let result = '';
             try {
-                console.log('=== OFFER IMAGE WEBP DEBUG ===');
-                console.log('offer:', offer);
-                console.log('offer.id:', offer?.id);
-                console.log('offer.images:', offer?.images);
-                console.log('offer.images type:', typeof offer?.images);
-                console.log('offer.images isArray:', Array.isArray(offer?.images));
-                
-                if (!offer) {
-                    console.log('NO offer');
-                    this._offerImageCache.set(cacheKey, result);
-                    return result;
-                }
-                if (!offer.images) {
-                    console.log('NO offer.images');
-                    this._offerImageCache.set(cacheKey, result);
-                    return result;
-                }
-                if (!Array.isArray(offer.images)) {
-                    console.log('offer.images is NOT array');
-                    this._offerImageCache.set(cacheKey, result);
-                    return result;
-                }
-                if (offer.images.length === 0) {
-                    console.log('offer.images is EMPTY array');
+                if (!offer || !offer.images || !Array.isArray(offer.images) || offer.images.length === 0) {
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 
                 const firstImage = offer.images[0];
-                console.log('firstImage:', firstImage);
-                console.log('firstImage type:', typeof firstImage);
-                console.log('firstImage === null:', firstImage === null);
-                console.log('firstImage === undefined:', firstImage === undefined);
                 
-                if (firstImage === null || firstImage === undefined) {
-                    console.log('firstImage is null/undefined');
-                    this._offerImageCache.set(cacheKey, result);
-                    return result;
-                }
-                if (typeof firstImage !== 'object') {
-                    console.log('firstImage is NOT object');
+                if (!firstImage || typeof firstImage !== 'object') {
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 
-                console.log('firstImage hasOwnProperty webp:', firstImage.hasOwnProperty('webp'));
-                if (firstImage.hasOwnProperty('webp')) {
-                    const webpValue = firstImage.webp;
-                    console.log('webpValue:', webpValue);
-                    console.log('webpValue type:', typeof webpValue);
-                    if (webpValue !== null && webpValue !== undefined && typeof webpValue === 'string' && webpValue.trim() !== '') {
-                        result = webpValue;
-                        console.log('RETURNING webp:', result);
-                    } else {
-                        console.log('webpValue is invalid');
-                    }
-                } else {
-                    console.log('NO webp property');
+                if (firstImage.hasOwnProperty('webp') && firstImage.webp !== null && firstImage.webp !== undefined && typeof firstImage.webp === 'string' && firstImage.webp.trim() !== '') {
+                    result = firstImage.webp;
                 }
                 
                 this._offerImageCache.set(cacheKey, result);
                 return result;
             } catch (e) {
                 console.error('ERROR in getOfferImageWebpSafe:', e);
-                console.error('Error stack:', e.stack);
                 this._offerImageCache.set(cacheKey, result);
                 return result;
             }

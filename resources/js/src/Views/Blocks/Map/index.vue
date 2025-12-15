@@ -98,63 +98,32 @@ export default {
     computed: {
         mapImageUrl() {
             try {
-                console.log('=== MAP IMAGE DEBUG ===');
-                console.log('this.data:', this.data);
-                console.log('this.data.fields:', this.data.fields);
-                console.log('this.data.fields length:', this.data.fields?.length);
-                
-                if (this.data.fields && Array.isArray(this.data.fields)) {
-                    console.log('All fields:');
-                    this.data.fields.forEach((field, index) => {
-                        console.log(`Field ${index}:`, {
-                            space: field.space,
-                            type: field.type,
-                            label: field.label,
-                            hasImage: !!field.image,
-                            hasValue: !!field.value,
-                            image: field.image,
-                            value: field.value
-                        });
-                    });
-                }
-                
                 const imageField = this.getField('map');
-                console.log('imageField after getField("map"):', imageField);
                 
                 if (!imageField) {
-                    console.log('NO imageField found with space="map"');
                     return null;
                 }
-                
-                console.log('imageField.image:', imageField.image);
-                console.log('imageField.value:', imageField.value);
                 
                 let imageSrc = null;
                 
                 // Вариант 1: данные в image.src
                 if (imageField.image && typeof imageField.image === 'object' && imageField.image.src) {
                     imageSrc = imageField.image.src;
-                    console.log('Found in imageField.image.src:', imageSrc);
                 }
                 // Вариант 2: данные в value.src (когда компонент image.vue устанавливает value = image)
                 else if (imageField.value && typeof imageField.value === 'object') {
                     if (imageField.value.src) {
                         imageSrc = imageField.value.src;
-                        console.log('Found in imageField.value.src:', imageSrc);
                     }
                     else if (imageField.value.image && imageField.value.image.src) {
                         imageSrc = imageField.value.image.src;
-                        console.log('Found in imageField.value.image.src:', imageSrc);
                     }
                 }
                 
                 if (imageSrc && typeof imageSrc === 'string' && imageSrc.trim() !== '') {
-                    const finalPath = imageSrc.startsWith('/') || imageSrc.startsWith('http://') || imageSrc.startsWith('https://') ? imageSrc : '/' + imageSrc;
-                    console.log('Final mapImageUrl:', finalPath);
-                    return finalPath;
+                    return imageSrc.startsWith('/') || imageSrc.startsWith('http://') || imageSrc.startsWith('https://') ? imageSrc : '/' + imageSrc;
                 }
                 
-                console.log('NO imageSrc found, returning null');
                 return null;
             } catch (e) {
                 console.error('Error in mapImageUrl:', e);

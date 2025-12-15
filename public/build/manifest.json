@@ -1,13 +1,13 @@
 {
   "_register-!~{004}~.js": {
-    "file": "assets/register-BCrZdlz7.css",
+    "file": "assets/register-CjMw6x-Y.css",
     "src": "_register-!~{004}~.js"
   },
-  "_register-sxNTuVjy.js": {
-    "file": "assets/register-sxNTuVjy.js",
+  "_register-C36sQ_SZ.js": {
+    "file": "assets/register-C36sQ_SZ.js",
     "name": "register",
     "css": [
-      "assets/register-BCrZdlz7.css"
+      "assets/register-CjMw6x-Y.css"
     ]
   },
   "resources/css/app.css": {
@@ -17,24 +17,24 @@
     "isEntry": true
   },
   "resources/js/app-lte.js": {
-    "file": "assets/app-lte-C1BJGbdS.js",
+    "file": "assets/app-lte-BFHNtHj9.js",
     "name": "app-lte",
     "src": "resources/js/app-lte.js",
     "isEntry": true,
     "imports": [
-      "_register-sxNTuVjy.js"
+      "_register-C36sQ_SZ.js"
     ],
     "css": [
       "assets/app-lte-BGyz5LLQ.css"
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-BHLZewmw.js",
+    "file": "assets/app-wsKXal7q.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
-      "_register-sxNTuVjy.js"
+      "_register-C36sQ_SZ.js"
     ],
     "css": [
       "assets/app-C5F-ZhAX.css"
