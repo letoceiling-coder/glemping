@@ -441,7 +441,14 @@ class Deploy extends Command
             throw new \Exception("Ошибка сервера ({$status}): {$errorMessage}");
         }
 
-        return $response->json();
+        $jsonResponse = $response->json();
+        
+        // Если ответ не является валидным JSON или пустой, возвращаем пустой массив
+        if (!is_array($jsonResponse)) {
+            return [];
+        }
+
+        return $jsonResponse;
     }
 
     /**
