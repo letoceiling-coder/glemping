@@ -2,7 +2,7 @@
 
 
     <svg v-if="offers" width="100%" viewBox="0 0 1634 1089" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-        <rect width="1634" height="1089" fill="url(#map-container)"/>
+        <image x="0" y="0" width="1634" height="1089" preserveAspectRatio="xMidYMid meet" :xlink:href="mapImage || '/map3.webp'"/>
 
         <rect v-for="offer in offers" :x="offer.pos_x" :y="offer.pos_y" :width="offer.width" :height="offer.height" :fill="`url(#pattern-${offer.id})`" class="pattern" ></rect>
 
@@ -36,14 +36,6 @@
                 <use :xlink:href="`#house-${offer.id}`" transform="matrix(0.00120192 0 0 0.00203764 0 -0.00125826)" ></use>
             </pattern>
             <image v-if="images && images.find(item => item.id == offer.image_id)" :id="`house-${offer.id}`"  preserveAspectRatio="xMidYMid meet" :xlink:href="images.find(item => item.id == offer.image_id)?.path || ''" ></image>
-        </defs>
-
-
-
-        <defs>
-            <pattern id="map-container" patternContentUnits="userSpaceOnUse" width="1634" height="1089">
-                <image id="map" x="0" y="0" width="1634" height="1089" preserveAspectRatio="xMidYMid meet" :xlink:href="mapImage || '/map3.webp'"/>
-            </pattern>
         </defs>
 
 
@@ -121,6 +113,7 @@ export default {
 svg {
     width: 100%;
     max-width: 100%;
+    height: auto;
     display: block;
 }
 
