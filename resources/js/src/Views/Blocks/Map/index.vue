@@ -3,11 +3,11 @@
 
     <div :class="this.appendClass(data.view)" :id="`id-${data.id}`">
         <div class="bg-map relative pb-3 pt-5 flex-center"
-             :style="`background: url(${getField('bg-image').image.webp}) 0% 0% / cover no-repeat;`">
+             :style="`background: url(${getField('bg-image')?.image?.webp || ''}) 0% 0% / cover no-repeat;`">
             <div class=" z-10 relative w-100">
                 <!--<SvgMap/>-->
-                <SvgMapGenerate :images="images" :offers="getField('collect-offers').resource.data" :mapImage="getField('image')?.image?.webp || getField('image')?.value?.webp"/>
-                <SvgMapSettings :offers="getField('collect-offers').resource.data" :images="images" v-if="this.storage.settings.user?.role_id >= 999"/>
+                <SvgMapGenerate :images="images" :offers="getField('collect-offers')?.resource?.data" :mapImage="mapImageUrl"/>
+                <SvgMapSettings :offers="getField('collect-offers')?.resource?.data" :images="images" v-if="this.storage.settings.user?.role_id >= 999"/>
             </div>
         </div>
 
@@ -95,6 +95,13 @@ export default {
                     path:'/img/homes/16.png'
                 },
             ]
+        }
+    },
+    computed: {
+        mapImageUrl() {
+            const imageField = this.getField('image');
+            if (!imageField) return undefined;
+            return imageField.image?.webp || imageField.value?.webp || undefined;
         }
     },
     methods: {
