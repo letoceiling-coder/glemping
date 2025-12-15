@@ -91,18 +91,24 @@ class Deploy extends Command
             // Шаг 5: Создание коммита
             $this->info('💾 Шаг 5: Создание коммита...');
             $commitMessage = $this->option('message') ?: 'Deploy: ' . date('Y-m-d H:i:s');
+            $commitCreated = false;
             if (!$dryRun) {
-                $this->createCommit($commitMessage);
+                $commitCreated = $this->createCommit($commitMessage);
             } else {
                 $this->line('  → git commit -m "' . $commitMessage . '"');
+                $commitCreated = true; // Для dry-run предполагаем что будет коммит
             }
 
-            // Шаг 6: Отправка в репозиторий
-            $this->info('📤 Шаг 6: Отправка в репозиторий...');
-            if (!$dryRun) {
-                $this->pushToRepository();
+            // Шаг 6: Отправка в репозиторий (только если был создан коммит)
+            if ($commitCreated) {
+                $this->info('📤 Шаг 6: Отправка в репозиторий...');
+                if (!$dryRun) {
+                    $this->pushToRepository();
+                } else {
+                    $this->line('  → git push origin <branch>' . ($this->option('force') ? ' --force' : ''));
+                }
             } else {
-                $this->line('  → git push origin <branch>' . ($this->option('force') ? ' --force' : ''));
+                $this->info('⏭️  Шаг 6: Пропуск отправки в репозиторий (нет новых коммитов)');
             }
 
             // Шаг 7: Отправка POST запроса на сервер
@@ -268,23 +274,38 @@ class Deploy extends Command
 
     /**
      * Создание коммита
+     * @return bool true если коммит был создан, false если нечего коммитить
      */
-    private function createCommit(string $message)
+    private function createCommit(string $message): bool
     {
+        // Проверяем, есть ли что коммитить
+        $process = new Process(['git', 'diff', '--cached', '--quiet'], base_path());
+        $process->run();
+        
+        if ($process->getExitCode() === 0) {
+            // Нет изменений в staging area
+            $this->warn('  ⚠️  Нет изменений для коммита, пропускаем');
+            return false;
+        }
+
         $process = new Process(['git', 'commit', '-m', $message], base_path());
         $process->run();
 
         if (!$process->isSuccessful()) {
             // Возможно, нет изменений для коммита
             $output = $process->getErrorOutput();
-            if (strpos($output, 'nothing to commit') !== false) {
-                $this->warn('  ⚠️  Нет изменений для коммита');
-                return;
+            $stdout = $process->getOutput();
+            
+            if (strpos($output, 'nothing to commit') !== false || 
+                strpos($stdout, 'nothing to commit') !== false) {
+                $this->warn('  ⚠️  Нет изменений для коммита, пропускаем');
+                return false;
             }
             throw new ProcessFailedException($process);
         }
 
         $this->info('  ✅ Коммит создан: ' . $message);
+        return true;
     }
 
     /**
