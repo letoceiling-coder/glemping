@@ -1,7 +1,7 @@
 <template>
 
 
-    <svg v-if="offers" width="100%"  viewBox="0 0 1634 1089" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <svg v-if="offers" width="100%" height="auto" viewBox="0 0 1634 1089" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <rect width="1634" height="1089" fill="url(#map-container)"/>
 
         <rect v-for="offer in offers" :x="offer.pos_x" :y="offer.pos_y" :width="offer.width" :height="offer.height" :fill="`url(#pattern-${offer.id})`" class="pattern" ></rect>
@@ -35,17 +35,16 @@
             <pattern :id="`pattern-${offer.id}`" patternContentUnits="objectBoundingBox" width="1" height="1" >
                 <use :xlink:href="`#house-${offer.id}`" transform="matrix(0.00120192 0 0 0.00203764 0 -0.00125826)" ></use>
             </pattern>
-            <image :id="`house-${offer.id}`"  preserveAspectRatio="none" :xlink:href="images.find(item => item.id == offer.image_id).path" ></image>
+            <image :id="`house-${offer.id}`"  preserveAspectRatio="xMidYMid meet" :xlink:href="images.find(item => item.id == offer.image_id)?.path" ></image>
         </defs>
 
 
 
         <defs>
             <pattern id="map-container" patternContentUnits="objectBoundingBox" width="1" height="1">
-                <use xlink:href="#map" transform="matrix(0.00138889 0 0 0.000926498 0 -0.000308833)"/>
+                <use xlink:href="#map" transform="scale(0.000612)" />
             </pattern>
-            <image id="map" width="720" height="1089" preserveAspectRatio="none" :xlink:href="mapImage || './map3.webp'"/>
-
+            <image id="map" width="1634" height="1089" preserveAspectRatio="xMidYMid meet" :xlink:href="mapImage || './map3.webp'"/>
         </defs>
 
 
@@ -79,31 +78,30 @@ name: "generateSvg",
 </script>
 
 <style scoped>
-.text{
+svg {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+}
 
+.text{
     font-family: 'Onest';
     font-style: normal;
     font-weight: 600;
     font-size: 14px;
     line-height: 18px;
-
-
 }
 .cursor{cursor:pointer;}
 .white{color:#fff}
 .price{
-
     font-family: 'Onest';
     font-style: normal;
     font-weight: 500;
     font-size: 12px;
     line-height: 15px;
-
     color: #000000;
-
 }
 .alert-home{
-
     opacity:0;
     transition: opacity .6s linear;
 }
@@ -111,5 +109,8 @@ name: "generateSvg",
     display:block;
     opacity:1;
     transition: opacity .6s linear;
+}
+.pattern {
+    pointer-events: none;
 }
 </style>

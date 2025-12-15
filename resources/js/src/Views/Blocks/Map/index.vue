@@ -2,10 +2,8 @@
 
 
     <div :class="this.appendClass(data.view)" :id="`id-${data.id}`">
-        <div class="bg-map relative pb-3 pt-5 flex-center"
-             :style="`background: url(${getField('bg-image')?.image?.webp || ''}) 0% 0% / cover no-repeat;`">
-            <div class=" z-10 relative w-100">
-                <!--<SvgMap/>-->
+        <div class="bg-map relative pb-3 pt-5">
+            <div class="map-container w-100">
                 <SvgMapGenerate :images="images" :offers="getField('collect-offers')?.resource?.data" :mapImage="mapImageUrl"/>
                 <SvgMapSettings :offers="getField('collect-offers')?.resource?.data" :images="images" v-if="this.storage.settings.user?.role_id >= 999"/>
             </div>
@@ -101,7 +99,7 @@ export default {
         mapImageUrl() {
             const imageField = this.getField('image');
             if (!imageField) return undefined;
-            return imageField.image?.webp || imageField.value?.webp || undefined;
+            return imageField.image?.src || imageField.value?.src || undefined;
         }
     },
     methods: {
@@ -145,22 +143,24 @@ export default {
 @import '/resources/css/mixin.scss';
 
 .bg-map {
-
-    height: 100%;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
 
-    &:before {
-        content: '';
+.map-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    svg {
+        max-width: 100%;
+        height: auto;
         display: block;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, .5);
-        z-index: 5;
     }
 }
 
