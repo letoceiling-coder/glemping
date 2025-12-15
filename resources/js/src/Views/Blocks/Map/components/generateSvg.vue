@@ -1,7 +1,7 @@
 <template>
 
 
-    <svg v-if="offers" width="100%" height="auto" viewBox="0 0 1634 1089" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <svg v-if="offers" width="100%" viewBox="0 0 1634 1089" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <rect width="1634" height="1089" fill="url(#map-container)"/>
 
         <rect v-for="offer in offers" :x="offer.pos_x" :y="offer.pos_y" :width="offer.width" :height="offer.height" :fill="`url(#pattern-${offer.id})`" class="pattern" ></rect>
@@ -27,7 +27,7 @@
                     <pattern id="alert-1" patternContentUnits="objectBoundingBox" width="1" height="1">
                         <use :xlink:href="`#alert-image-${offer.id}`" transform="translate(-0.0595454) scale(0.00078064)"/>
                     </pattern>
-                    <image :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="offer.images[0]?.webp"/>
+                    <image :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="offer.images?.[0]?.webp || ''"/>
                 </defs>
             </g>
 
@@ -42,7 +42,7 @@
 
         <defs>
             <pattern id="map-container" patternContentUnits="userSpaceOnUse" width="1634" height="1089">
-                <image id="map" x="0" y="0" width="1634" height="1089" preserveAspectRatio="xMidYMid meet" :xlink:href="mapImage || './map3.webp'"/>
+                <image id="map" x="0" y="0" width="1634" height="1089" preserveAspectRatio="xMidYMid meet" :xlink:href="mapImage || '/map3.webp'"/>
             </pattern>
         </defs>
 
@@ -79,8 +79,8 @@ name: "generateSvg",
 <style scoped>
 svg {
     width: 100%;
-    height: auto;
     max-width: 100%;
+    display: block;
 }
 
 .text{
