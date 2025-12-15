@@ -98,16 +98,31 @@ export default {
     computed: {
         mapImageUrl() {
             try {
-                const imageField = this.getField('image');
                 console.log('=== MAP IMAGE DEBUG ===');
-                console.log('imageField:', imageField);
-                console.log('imageField keys:', imageField ? Object.keys(imageField) : 'null');
-                console.log('imageField.image:', imageField?.image);
-                console.log('imageField.value:', imageField?.value);
-                console.log('imageField.value type:', typeof imageField?.value);
+                console.log('this.data:', this.data);
+                console.log('this.data.fields:', this.data.fields);
+                console.log('this.data.fields length:', this.data.fields?.length);
+                
+                if (this.data.fields && Array.isArray(this.data.fields)) {
+                    console.log('All fields:');
+                    this.data.fields.forEach((field, index) => {
+                        console.log(`Field ${index}:`, {
+                            space: field.space,
+                            type: field.type,
+                            label: field.label,
+                            hasImage: !!field.image,
+                            hasValue: !!field.value,
+                            image: field.image,
+                            value: field.value
+                        });
+                    });
+                }
+                
+                const imageField = this.getField('image');
+                console.log('imageField after getField("image"):', imageField);
                 
                 if (!imageField) {
-                    console.log('NO imageField found');
+                    console.log('NO imageField found with space="image"');
                     return null;
                 }
                 
@@ -161,6 +176,9 @@ export default {
 
         },
         getField(name) {
+            if (!this.data || !this.data.fields || !Array.isArray(this.data.fields)) {
+                return undefined;
+            }
             return this.data.fields.find(item => item.space === name)
         }
     },
