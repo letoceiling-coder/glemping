@@ -27,7 +27,7 @@
                     <pattern id="alert-1" patternContentUnits="objectBoundingBox" width="1" height="1">
                         <use :xlink:href="`#alert-image-${offer.id}`" transform="translate(-0.0595454) scale(0.00078064)"/>
                     </pattern>
-                    <image v-if="getOfferImageWebp(offer) !== ''" :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="getOfferImageWebp(offer)"/>
+                    <image v-if="getOfferImageWebpSafe(offer)" :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="getOfferImageWebpSafe(offer)"/>
                 </defs>
             </g>
 
@@ -61,9 +61,14 @@ export default {
         images:Object,
         mapImage: String,
     },
-name: "generateSvg",
+    name: "generateSvg",
+    data() {
+        return {
+            _offerImageCache: null
+        }
+    },
     mounted() {
-
+        this._offerImageCache = new Map();
     },
     methods:{
         over(e){
@@ -72,26 +77,63 @@ name: "generateSvg",
         out(e){
             $(e.target).removeClass('active')
         },
-        getOfferImageWebp(offer) {
+        getOfferImageWebpSafe(offer) {
+            // Кеш для избежания повторных вычислений
+            if (!this._offerImageCache) {
+                this._offerImageCache = new Map();
+            }
+            
+            const cacheKey = offer?.id || 'unknown';
+            if (this._offerImageCache.has(cacheKey)) {
+                return this._offerImageCache.get(cacheKey);
+            }
+            
+            let result = '';
             try {
                 // Безопасная проверка всех условий
-                if (!offer) return '';
-                if (!offer.images) return '';
-                if (!Array.isArray(offer.images)) return '';
-                if (offer.images.length === 0) return '';
+                if (!offer) {
+                    this._offerImageCache.set(cacheKey, result);
+                    return result;
+                }
+                if (!offer.images) {
+                    this._offerImageCache.set(cacheKey, result);
+                    return result;
+                }
+                if (!Array.isArray(offer.images)) {
+                    this._offerImageCache.set(cacheKey, result);
+                    return result;
+                }
+                if (offer.images.length === 0) {
+                    this._offerImageCache.set(cacheKey, result);
+                    return result;
+                }
                 
                 const firstImage = offer.images[0];
                 
-                // Проверяем что firstImage существует и это объект
-                if (!firstImage) return '';
-                if (typeof firstImage !== 'object') return '';
-                if (firstImage === null) return '';
+                // Проверяем что firstImage существует и это объект (проверка на null ДО typeof)
+                if (firstImage === null || firstImage === undefined) {
+                    this._offerImageCache.set(cacheKey, result);
+                    return result;
+                }
+                if (typeof firstImage !== 'object') {
+                    this._offerImageCache.set(cacheKey, result);
+                    return result;
+                }
                 
-                // Только теперь безопасно обращаемся к webp
-                return (firstImage.webp && typeof firstImage.webp === 'string') ? firstImage.webp : '';
+                // Только теперь безопасно обращаемся к webp - проверяем через hasOwnProperty
+                if (firstImage.hasOwnProperty('webp')) {
+                    const webpValue = firstImage.webp;
+                    if (webpValue !== null && webpValue !== undefined && typeof webpValue === 'string' && webpValue.trim() !== '') {
+                        result = webpValue;
+                    }
+                }
+                
+                this._offerImageCache.set(cacheKey, result);
+                return result;
             } catch (e) {
                 // Тихая обработка ошибок
-                return '';
+                this._offerImageCache.set(cacheKey, result);
+                return result;
             }
         }
     }

@@ -4,7 +4,7 @@
     <div :class="this.appendClass(data.view)" :id="`id-${data.id}`">
         <div class="bg-map relative pb-3 pt-5">
             <div class="map-container w-100">
-                <SvgMapGenerate :images="images" :offers="getField('collect-offers')?.resource?.data" :mapImage="mapImageUrl"/>
+                <SvgMapGenerate :images="images" :offers="getField('collect-offers')?.resource?.data" :mapImage="mapImageUrl || null"/>
                 <SvgMapSettings :offers="getField('collect-offers')?.resource?.data" :images="images" v-if="this.storage.settings.user?.role_id >= 999"/>
             </div>
         </div>
@@ -134,7 +134,6 @@ export default {
                 
                 return null;
             } catch (e) {
-                console.error('Error in mapImageUrl:', e);
                 return null;
             }
         }
