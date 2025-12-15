@@ -14,7 +14,7 @@ export default {
         },
         {
             label: "Карта фото",
-            space: "image",
+            space: "map",
             type: 'image',
             image: {
                 name: '',

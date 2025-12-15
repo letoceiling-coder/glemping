@@ -118,13 +118,16 @@ export default {
                     });
                 }
                 
-                const imageField = this.getField('image');
-                console.log('imageField after getField("image"):', imageField);
+                const imageField = this.getField('map');
+                console.log('imageField after getField("map"):', imageField);
                 
                 if (!imageField) {
-                    console.log('NO imageField found with space="image"');
+                    console.log('NO imageField found with space="map"');
                     return null;
                 }
+                
+                console.log('imageField.image:', imageField.image);
+                console.log('imageField.value:', imageField.value);
                 
                 let imageSrc = null;
                 
@@ -133,7 +136,7 @@ export default {
                     imageSrc = imageField.image.src;
                     console.log('Found in imageField.image.src:', imageSrc);
                 }
-                // Вариант 2: данные в value.src
+                // Вариант 2: данные в value.src (когда компонент image.vue устанавливает value = image)
                 else if (imageField.value && typeof imageField.value === 'object') {
                     if (imageField.value.src) {
                         imageSrc = imageField.value.src;
