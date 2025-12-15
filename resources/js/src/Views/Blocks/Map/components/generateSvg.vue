@@ -27,7 +27,7 @@
                     <pattern id="alert-1" patternContentUnits="objectBoundingBox" width="1" height="1">
                         <use :xlink:href="`#alert-image-${offer.id}`" transform="translate(-0.0595454) scale(0.00078064)"/>
                     </pattern>
-                    <image v-if="getOfferImageWebp(offer)" :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="getOfferImageWebp(offer)"/>
+                    <image v-if="getOfferImageWebp(offer) !== ''" :id="`alert-image-${offer.id}`" width="1920" height="1281" preserveAspectRatio="none" :xlink:href="getOfferImageWebp(offer)"/>
                 </defs>
             </g>
 
@@ -35,7 +35,7 @@
             <pattern :id="`pattern-${offer.id}`" patternContentUnits="objectBoundingBox" width="1" height="1" >
                 <use :xlink:href="`#house-${offer.id}`" transform="matrix(0.00120192 0 0 0.00203764 0 -0.00125826)" ></use>
             </pattern>
-            <image :id="`house-${offer.id}`"  preserveAspectRatio="xMidYMid meet" :xlink:href="images.find(item => item.id == offer.image_id)?.path" ></image>
+            <image v-if="images && images.find(item => item.id == offer.image_id)" :id="`house-${offer.id}`"  preserveAspectRatio="xMidYMid meet" :xlink:href="images.find(item => item.id == offer.image_id)?.path || ''" ></image>
         </defs>
 
 
@@ -74,16 +74,23 @@ name: "generateSvg",
         },
         getOfferImageWebp(offer) {
             try {
-                if (!offer || !offer.images || !Array.isArray(offer.images) || offer.images.length === 0) {
-                    return '';
-                }
+                // Безопасная проверка всех условий
+                if (!offer) return '';
+                if (!offer.images) return '';
+                if (!Array.isArray(offer.images)) return '';
+                if (offer.images.length === 0) return '';
+                
                 const firstImage = offer.images[0];
-                if (!firstImage || typeof firstImage !== 'object') {
-                    return '';
-                }
-                return (firstImage.webp) ? firstImage.webp : '';
+                
+                // Проверяем что firstImage существует и это объект
+                if (!firstImage) return '';
+                if (typeof firstImage !== 'object') return '';
+                if (firstImage === null) return '';
+                
+                // Только теперь безопасно обращаемся к webp
+                return (firstImage.webp && typeof firstImage.webp === 'string') ? firstImage.webp : '';
             } catch (e) {
-                console.error('Error getting offer image webp:', e);
+                // Тихая обработка ошибок
                 return '';
             }
         }

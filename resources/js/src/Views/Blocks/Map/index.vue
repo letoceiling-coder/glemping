@@ -97,31 +97,46 @@ export default {
     },
     computed: {
         mapImageUrl() {
-            const imageField = this.getField('image');
-            if (!imageField) return null;
-            
-            // Проверяем различные варианты хранения данных
-            let imageSrc = null;
-            
-            // Сначала проверяем image.src
-            if (imageField.image?.src) {
-                imageSrc = imageField.image.src;
+            try {
+                const imageField = this.getField('image');
+                if (!imageField) return null;
+                
+                // Алгоритм поиска оригинального изображения (src):
+                // 1. Компонент image.vue сохраняет данные в setting.value = setting.image
+                // 2. При сохранении страницы данные отправляются как value
+                // 3. При загрузке данные могут быть в value или в image
+                
+                let imageSrc = null;
+                
+                // Вариант 1: данные в image.src (если загружены из settings.js)
+                if (imageField.image && typeof imageField.image === 'object' && imageField.image.src) {
+                    imageSrc = imageField.image.src;
+                }
+                // Вариант 2: данные в value.src (данные сохранены и загружены с сервера)
+                else if (imageField.value && typeof imageField.value === 'object') {
+                    // Если value содержит src напрямую
+                    if (imageField.value.src) {
+                        imageSrc = imageField.value.src;
+                    }
+                    // Если value содержит image объект
+                    else if (imageField.value.image && imageField.value.image.src) {
+                        imageSrc = imageField.value.image.src;
+                    }
+                }
+                
+                if (imageSrc && typeof imageSrc === 'string' && imageSrc.trim() !== '') {
+                    // Убеждаемся что путь корректный
+                    if (imageSrc.startsWith('/') || imageSrc.startsWith('http://') || imageSrc.startsWith('https://')) {
+                        return imageSrc;
+                    }
+                    return '/' + imageSrc;
+                }
+                
+                return null;
+            } catch (e) {
+                console.error('Error in mapImageUrl:', e);
+                return null;
             }
-            // Затем проверяем value.src (данные могут быть сохранены в value)
-            else if (imageField.value?.src) {
-                imageSrc = imageField.value.src;
-            }
-            // Если value это объект с image внутри
-            else if (imageField.value?.image?.src) {
-                imageSrc = imageField.value.image.src;
-            }
-            
-            if (imageSrc) {
-                // Убеждаемся что путь начинается с / или http
-                return imageSrc.startsWith('/') || imageSrc.startsWith('http') ? imageSrc : '/' + imageSrc;
-            }
-            
-            return null;
         }
     },
     methods: {
