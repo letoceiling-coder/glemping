@@ -1,16 +1,13 @@
 {
   "_register-!~{004}~.js": {
-    "file": "assets/register-CQJpEfLu.css",
+    "file": "assets/register-BYlLZd2s.css",
     "src": "_register-!~{004}~.js"
   },
-  "_register-CUNsYBK7.js": {
-    "file": "assets/register-CUNsYBK7.js",
+  "_register-DaYzuwjx.js": {
+    "file": "assets/register-DaYzuwjx.js",
     "name": "register",
     "css": [
-      "assets/register-CQJpEfLu.css"
-    ],
-    "assets": [
-      "assets/map3-Dl9Zk7AO.webp"
+      "assets/register-BYlLZd2s.css"
     ]
   },
   "resources/css/app.css": {
@@ -20,31 +17,27 @@
     "isEntry": true
   },
   "resources/js/app-lte.js": {
-    "file": "assets/app-lte-xge0bYN-.js",
+    "file": "assets/app-lte-BDOlguyM.js",
     "name": "app-lte",
     "src": "resources/js/app-lte.js",
     "isEntry": true,
     "imports": [
-      "_register-CUNsYBK7.js"
+      "_register-DaYzuwjx.js"
     ],
     "css": [
       "assets/app-lte-BGyz5LLQ.css"
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-C423BSEW.js",
+    "file": "assets/app-v2RsP1EC.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
-      "_register-CUNsYBK7.js"
+      "_register-DaYzuwjx.js"
     ],
     "css": [
       "assets/app-C5F-ZhAX.css"
     ]
-  },
-  "resources/js/src/Views/Blocks/Map/components/map3.webp": {
-    "file": "assets/map3-Dl9Zk7AO.webp",
-    "src": "resources/js/src/Views/Blocks/Map/components/map3.webp"
   }
 }

@@ -6,7 +6,7 @@
              :style="`background: url(${getField('bg-image').image.webp}) 0% 0% / cover no-repeat;`">
             <div class=" z-10 relative w-100">
                 <!--<SvgMap/>-->
-                <SvgMapGenerate :images="images" :offers="getField('collect-offers').resource.data"/>
+                <SvgMapGenerate :images="images" :offers="getField('collect-offers').resource.data" :mapImage="getField('image')?.image?.webp || getField('image')?.value?.webp"/>
                 <SvgMapSettings :offers="getField('collect-offers').resource.data" :images="images" v-if="this.storage.settings.user?.role_id >= 999"/>
             </div>
         </div>

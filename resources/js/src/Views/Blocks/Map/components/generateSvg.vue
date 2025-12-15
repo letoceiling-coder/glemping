@@ -44,7 +44,7 @@
             <pattern id="map-container" patternContentUnits="objectBoundingBox" width="1" height="1">
                 <use xlink:href="#map" transform="matrix(0.00138889 0 0 0.000926498 0 -0.000308833)"/>
             </pattern>
-            <image id="map" width="720" height="1089" preserveAspectRatio="none" xlink:href="./map3.webp"/>
+            <image id="map" width="720" height="1089" preserveAspectRatio="none" :xlink:href="mapImage || './map3.webp'"/>
 
         </defs>
 
@@ -61,6 +61,7 @@ export default {
     props:{
         offers:Object,
         images:Object,
+        mapImage: String,
     },
 name: "generateSvg",
     mounted() {

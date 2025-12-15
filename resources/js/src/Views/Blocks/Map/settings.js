@@ -13,6 +13,17 @@ export default {
             }
         },
         {
+            label: "Карта фото",
+            space: "image",
+            type: 'image',
+            image: {
+                name: '',
+                src: '',
+                webp: '',
+                size: null,
+            }
+        },
+        {
             label:"Коллекция предложений",
             space:"collect-offers",
             type:'resource',
