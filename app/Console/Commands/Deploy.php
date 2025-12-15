@@ -246,6 +246,7 @@ class Deploy extends Command
         $buildDir = public_path('build');
         if (is_dir($buildDir)) {
             $process = new Process(['git', 'add', '-f', 'public/build'], base_path());
+            $process->setTimeout(300); // 5 минут для больших файлов
             $process->run();
             
             if (!$process->isSuccessful()) {
@@ -253,8 +254,9 @@ class Deploy extends Command
             }
         }
 
-        // Добавляем остальные изменения
+        // Добавляем остальные изменения (исключая большие файлы)
         $process = new Process(['git', 'add', '.'], base_path());
+        $process->setTimeout(300); // 5 минут для больших файлов сборки
         $process->run();
 
         if (!$process->isSuccessful()) {
