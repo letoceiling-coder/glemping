@@ -99,41 +99,47 @@ export default {
         mapImageUrl() {
             try {
                 const imageField = this.getField('image');
-                if (!imageField) return null;
+                console.log('=== MAP IMAGE DEBUG ===');
+                console.log('imageField:', imageField);
+                console.log('imageField keys:', imageField ? Object.keys(imageField) : 'null');
+                console.log('imageField.image:', imageField?.image);
+                console.log('imageField.value:', imageField?.value);
+                console.log('imageField.value type:', typeof imageField?.value);
                 
-                // Алгоритм поиска оригинального изображения (src):
-                // 1. Компонент image.vue сохраняет данные в setting.value = setting.image
-                // 2. При сохранении страницы данные отправляются как value
-                // 3. При загрузке данные могут быть в value или в image
+                if (!imageField) {
+                    console.log('NO imageField found');
+                    return null;
+                }
                 
                 let imageSrc = null;
                 
-                // Вариант 1: данные в image.src (если загружены из settings.js)
+                // Вариант 1: данные в image.src
                 if (imageField.image && typeof imageField.image === 'object' && imageField.image.src) {
                     imageSrc = imageField.image.src;
+                    console.log('Found in imageField.image.src:', imageSrc);
                 }
-                // Вариант 2: данные в value.src (данные сохранены и загружены с сервера)
+                // Вариант 2: данные в value.src
                 else if (imageField.value && typeof imageField.value === 'object') {
-                    // Если value содержит src напрямую
                     if (imageField.value.src) {
                         imageSrc = imageField.value.src;
+                        console.log('Found in imageField.value.src:', imageSrc);
                     }
-                    // Если value содержит image объект
                     else if (imageField.value.image && imageField.value.image.src) {
                         imageSrc = imageField.value.image.src;
+                        console.log('Found in imageField.value.image.src:', imageSrc);
                     }
                 }
                 
                 if (imageSrc && typeof imageSrc === 'string' && imageSrc.trim() !== '') {
-                    // Убеждаемся что путь корректный
-                    if (imageSrc.startsWith('/') || imageSrc.startsWith('http://') || imageSrc.startsWith('https://')) {
-                        return imageSrc;
-                    }
-                    return '/' + imageSrc;
+                    const finalPath = imageSrc.startsWith('/') || imageSrc.startsWith('http://') || imageSrc.startsWith('https://') ? imageSrc : '/' + imageSrc;
+                    console.log('Final mapImageUrl:', finalPath);
+                    return finalPath;
                 }
                 
+                console.log('NO imageSrc found, returning null');
                 return null;
             } catch (e) {
+                console.error('Error in mapImageUrl:', e);
                 return null;
             }
         }

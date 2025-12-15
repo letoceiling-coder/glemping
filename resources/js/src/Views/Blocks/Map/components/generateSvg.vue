@@ -78,7 +78,6 @@ export default {
             $(e.target).removeClass('active')
         },
         getOfferImageWebpSafe(offer) {
-            // Кеш для избежания повторных вычислений
             if (!this._offerImageCache) {
                 this._offerImageCache = new Map();
             }
@@ -90,48 +89,71 @@ export default {
             
             let result = '';
             try {
-                // Безопасная проверка всех условий
+                console.log('=== OFFER IMAGE WEBP DEBUG ===');
+                console.log('offer:', offer);
+                console.log('offer.id:', offer?.id);
+                console.log('offer.images:', offer?.images);
+                console.log('offer.images type:', typeof offer?.images);
+                console.log('offer.images isArray:', Array.isArray(offer?.images));
+                
                 if (!offer) {
+                    console.log('NO offer');
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 if (!offer.images) {
+                    console.log('NO offer.images');
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 if (!Array.isArray(offer.images)) {
+                    console.log('offer.images is NOT array');
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 if (offer.images.length === 0) {
+                    console.log('offer.images is EMPTY array');
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 
                 const firstImage = offer.images[0];
+                console.log('firstImage:', firstImage);
+                console.log('firstImage type:', typeof firstImage);
+                console.log('firstImage === null:', firstImage === null);
+                console.log('firstImage === undefined:', firstImage === undefined);
                 
-                // Проверяем что firstImage существует и это объект (проверка на null ДО typeof)
                 if (firstImage === null || firstImage === undefined) {
+                    console.log('firstImage is null/undefined');
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 if (typeof firstImage !== 'object') {
+                    console.log('firstImage is NOT object');
                     this._offerImageCache.set(cacheKey, result);
                     return result;
                 }
                 
-                // Только теперь безопасно обращаемся к webp - проверяем через hasOwnProperty
+                console.log('firstImage hasOwnProperty webp:', firstImage.hasOwnProperty('webp'));
                 if (firstImage.hasOwnProperty('webp')) {
                     const webpValue = firstImage.webp;
+                    console.log('webpValue:', webpValue);
+                    console.log('webpValue type:', typeof webpValue);
                     if (webpValue !== null && webpValue !== undefined && typeof webpValue === 'string' && webpValue.trim() !== '') {
                         result = webpValue;
+                        console.log('RETURNING webp:', result);
+                    } else {
+                        console.log('webpValue is invalid');
                     }
+                } else {
+                    console.log('NO webp property');
                 }
                 
                 this._offerImageCache.set(cacheKey, result);
                 return result;
             } catch (e) {
-                // Тихая обработка ошибок
+                console.error('ERROR in getOfferImageWebpSafe:', e);
+                console.error('Error stack:', e.stack);
                 this._offerImageCache.set(cacheKey, result);
                 return result;
             }
