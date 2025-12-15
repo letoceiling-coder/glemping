@@ -41,10 +41,9 @@
 
 
         <defs>
-            <pattern id="map-container" patternContentUnits="objectBoundingBox" width="1" height="1">
-                <use xlink:href="#map" transform="scale(0.000612)" />
+            <pattern id="map-container" patternContentUnits="userSpaceOnUse" width="1634" height="1089">
+                <image id="map" x="0" y="0" width="1634" height="1089" preserveAspectRatio="xMidYMid meet" :xlink:href="mapImage || './map3.webp'"/>
             </pattern>
-            <image id="map" width="1634" height="1089" preserveAspectRatio="xMidYMid meet" :xlink:href="mapImage || './map3.webp'"/>
         </defs>
 
 

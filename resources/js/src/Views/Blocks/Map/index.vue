@@ -98,8 +98,16 @@ export default {
     computed: {
         mapImageUrl() {
             const imageField = this.getField('image');
-            if (!imageField) return undefined;
-            return imageField.image?.src || imageField.value?.src || undefined;
+            if (!imageField) return null;
+            
+            // Используем оригинальное изображение (src), если оно есть
+            const imageSrc = imageField.image?.src || imageField.value?.src;
+            if (imageSrc) {
+                // Убеждаемся что путь начинается с / или http
+                return imageSrc.startsWith('/') || imageSrc.startsWith('http') ? imageSrc : '/' + imageSrc;
+            }
+            
+            return null;
         }
     },
     methods: {
