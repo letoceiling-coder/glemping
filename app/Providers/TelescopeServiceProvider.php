@@ -20,7 +20,7 @@ if (class_exists(\Laravel\Telescope\TelescopeApplicationServiceProvider::class))
 
         $isLocal = $this->app->environment('local');
 
-        Telescope::filter(function (IncomingEntry $entry) use ($isLocal) {
+        \Laravel\Telescope\Telescope::filter(function ($entry) use ($isLocal) {
             return $isLocal ||
                    $entry->isReportableException() ||
                    $entry->isFailedRequest() ||
