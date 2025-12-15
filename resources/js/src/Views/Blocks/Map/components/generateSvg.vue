@@ -73,11 +73,19 @@ name: "generateSvg",
             $(e.target).removeClass('active')
         },
         getOfferImageWebp(offer) {
-            if (!offer || !offer.images || !Array.isArray(offer.images) || offer.images.length === 0) {
+            try {
+                if (!offer || !offer.images || !Array.isArray(offer.images) || offer.images.length === 0) {
+                    return '';
+                }
+                const firstImage = offer.images[0];
+                if (!firstImage || typeof firstImage !== 'object') {
+                    return '';
+                }
+                return (firstImage.webp) ? firstImage.webp : '';
+            } catch (e) {
+                console.error('Error getting offer image webp:', e);
                 return '';
             }
-            const firstImage = offer.images[0];
-            return (firstImage && firstImage.webp) ? firstImage.webp : '';
         }
     }
 }

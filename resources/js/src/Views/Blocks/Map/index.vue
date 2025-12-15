@@ -100,8 +100,22 @@ export default {
             const imageField = this.getField('image');
             if (!imageField) return null;
             
-            // Используем оригинальное изображение (src), если оно есть
-            const imageSrc = imageField.image?.src || imageField.value?.src;
+            // Проверяем различные варианты хранения данных
+            let imageSrc = null;
+            
+            // Сначала проверяем image.src
+            if (imageField.image?.src) {
+                imageSrc = imageField.image.src;
+            }
+            // Затем проверяем value.src (данные могут быть сохранены в value)
+            else if (imageField.value?.src) {
+                imageSrc = imageField.value.src;
+            }
+            // Если value это объект с image внутри
+            else if (imageField.value?.image?.src) {
+                imageSrc = imageField.value.image.src;
+            }
+            
             if (imageSrc) {
                 // Убеждаемся что путь начинается с / или http
                 return imageSrc.startsWith('/') || imageSrc.startsWith('http') ? imageSrc : '/' + imageSrc;
