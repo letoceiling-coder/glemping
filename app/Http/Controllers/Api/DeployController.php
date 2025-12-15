@@ -306,19 +306,16 @@ class DeployController extends Controller
             $composerPath = $this->findComposer();
 
             Log::info('📦 Устанавливаем зависимости через Composer...');
+            
+            if (!$composerPath) {
+                throw new \Exception('Composer не найден. Установите composer или укажите COMPOSER_PATH в .env');
+            }
+            
             Log::info('📦 Composer path: ' . $composerPath);
 
-            // Composer может быть либо исполняемым скриптом (composer.phar), либо командой из PATH
-            // Если это полный путь к файлу (начинается с /) или файл существует
-            if ($composerPath && (str_starts_with($composerPath, '/') || file_exists($composerPath))) {
-                // Полный путь к composer.phar - вызываем через php
-                $fullPath = realpath($composerPath) ?: $composerPath;
-                $command = [$phpPath, $fullPath];
-            } else {
-                // Это команда из PATH (/usr/local/bin/composer) - используем напрямую
-                // composer сам является исполняемым скриптом и использует системный PHP
-                $command = [$composerPath ?: 'composer'];
-            }
+            // Всегда используем полный путь к composer и вызываем через php
+            // Это гарантирует что composer будет найден независимо от PATH
+            $command = [$phpPath, $composerPath];
 
             $command = array_merge($command, [
                 'install',
@@ -356,33 +353,23 @@ class DeployController extends Controller
     }
 
     /**
-     * Поиск пути к Composer
+     * Поиск пути к Composer (всегда возвращает полный путь)
      */
     private function findComposer(): ?string
     {
         // Проверяем переменную окружения
         $composerPath = env('COMPOSER_PATH');
         if ($composerPath && file_exists($composerPath)) {
-            return $composerPath;
+            return realpath($composerPath) ?: $composerPath;
         }
 
         // Локальный composer в проекте
         $localComposer = base_path('bin/composer');
         if (file_exists($localComposer)) {
-            return $localComposer;
+            return realpath($localComposer) ?: $localComposer;
         }
 
-        // Ищем через which
-        $process = new Process(['which', 'composer'], base_path());
-        $process->run();
-        if ($process->isSuccessful()) {
-            $path = trim($process->getOutput());
-            if (file_exists($path)) {
-                return $path;
-            }
-        }
-
-        // Стандартные пути
+        // Стандартные пути (проверяем сначала, так как они наиболее вероятны)
         $standardPaths = [
             '/usr/local/bin/composer',
             '/usr/bin/composer',
@@ -391,11 +378,22 @@ class DeployController extends Controller
 
         foreach ($standardPaths as $path) {
             if (file_exists($path)) {
-                return $path;
+                return realpath($path) ?: $path;
             }
         }
 
-        return 'composer'; // Fallback на PATH
+        // Ищем через which (последний вариант)
+        $process = new Process(['which', 'composer'], base_path());
+        $process->run();
+        if ($process->isSuccessful()) {
+            $path = trim($process->getOutput());
+            if ($path && file_exists($path)) {
+                return realpath($path) ?: $path;
+            }
+        }
+
+        // Если ничего не найдено, возвращаем null (будет ошибка)
+        return null;
     }
 
     /**
