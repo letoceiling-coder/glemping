@@ -168,7 +168,10 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        App\Providers\TelescopeServiceProvider::class,
+        // TelescopeServiceProvider регистрируем только если пакет установлен
+        ...(class_exists(\Laravel\Telescope\TelescopeApplicationServiceProvider::class) 
+            ? [App\Providers\TelescopeServiceProvider::class] 
+            : []),
         L5Swagger\L5SwaggerServiceProvider::class,
         \Torann\GeoIP\GeoIPServiceProvider::class,
     ])->toArray(),
