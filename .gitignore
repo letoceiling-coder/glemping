@@ -22,3 +22,6 @@ yarn-error.log
 server-setup.sh
 .git.rar
 *.rar
+
+# Local composer (can be installed per server)
+/bin/composer
