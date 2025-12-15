@@ -378,7 +378,10 @@ class DeployController extends Controller
         }
 
         // Стандартные пути (проверяем сначала, так как они наиболее вероятны)
+        // Проверяем версию PHP и используем соответствующую версию composer если есть
+        $phpVersion = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
         $standardPaths = [
+            "/usr/local/bin/composer-php{$phpVersion}", // composer-php8.2, composer-php8.1 и т.д.
             '/usr/local/bin/composer',
             '/usr/bin/composer',
             '/opt/composer/composer',
