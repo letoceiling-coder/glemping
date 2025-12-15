@@ -189,4 +189,15 @@ return [
 
     ])->toArray(),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Deploy Token
+    |--------------------------------------------------------------------------
+    |
+    | Secret token for deploy API authentication
+    |
+    */
+
+    'deploy_token' => env('DEPLOY_TOKEN', env('DEPLOY_SECRET')),
+
 ];
