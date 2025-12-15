@@ -313,20 +313,9 @@ class DeployController extends Controller
             
             Log::info('📦 Composer path: ' . $composerPath);
 
-            // Определяем как запускать composer
-            // Если это .phar файл или имя содержит "phar" - запускаем через php
-            // Иначе (обычный исполняемый скрипт) - запускаем напрямую
-            $isPhar = str_ends_with($composerPath, '.phar') || 
-                      str_contains($composerPath, 'composer.phar') ||
-                      !@is_executable($composerPath);
-            
-            if ($isPhar) {
-                // .phar файл требует php
-                $command = [$phpPath, $composerPath];
-            } else {
-                // Исполняемый скрипт запускаем напрямую
-                $command = [$composerPath];
-            }
+            // Всегда запускаем composer через правильную версию PHP
+            // Это гарантирует что используется нужная версия PHP
+            $command = [$phpPath, $composerPath];
 
             $command = array_merge($command, [
                 'install',
