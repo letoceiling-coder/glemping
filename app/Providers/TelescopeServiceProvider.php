@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
-use Laravel\Telescope\IncomingEntry;
-use Laravel\Telescope\Telescope;
-use Laravel\Telescope\TelescopeApplicationServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
-class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
-{
+// Условно импортируем классы Telescope только если пакет установлен
+if (class_exists(\Laravel\Telescope\TelescopeApplicationServiceProvider::class)) {
+    class TelescopeServiceProvider extends \Laravel\Telescope\TelescopeApplicationServiceProvider
+    {
     /**
      * Register any application services.
      */
@@ -39,9 +39,9 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
             return;
         }
 
-        Telescope::hideRequestParameters(['_token']);
+        \Laravel\Telescope\Telescope::hideRequestParameters(['_token']);
 
-        Telescope::hideRequestHeaders([
+        \Laravel\Telescope\Telescope::hideRequestHeaders([
             'cookie',
             'x-csrf-token',
             'x-xsrf-token',
@@ -60,5 +60,20 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                 //
             ]);
         });
+    }
+    }
+} else {
+    // Если Telescope не установлен, создаем пустой провайдер
+    class TelescopeServiceProvider extends ServiceProvider
+    {
+        public function register(): void
+        {
+            // Telescope не установлен, ничего не делаем
+        }
+
+        public function boot(): void
+        {
+            // Telescope не установлен, ничего не делаем
+        }
     }
 }
