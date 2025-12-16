@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\v1;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\ServiceFilter;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use App\Http\Resources\ServiceResource;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ServiceController extends Controller
@@ -35,10 +37,19 @@ class ServiceController extends Controller
     }
     /**
      * Display a listing of the resource.
+     * @param Request $request
+     * @return AnonymousResourceCollection
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return ServiceResource::collection(Service::all());
+        $filter = app()->make(ServiceFilter::class, ['queryParams' => array_filter($request->all())]);
+
+        if ($request->has('paginate') && $request->get('paginate') != 0) {
+            return ServiceResource::collection(Service::filter($filter)->paginate($request->get('paginate'), ['*'], 'page', $request->get('page') ?? 1));
+        } else {
+            return ServiceResource::collection(Service::filter($filter)->get());
+        }
     }
 
     /**

@@ -1,10 +1,10 @@
 <template>
-    <div class="image-card relative mb-4" @click="showModal(service)">
+    <div class="image-card relative mb-4" @click="showModal(service)" v-if="serviceImage">
 
         <picture>
-            <source :srcset="service.image_id.webp"
+            <source :srcset="serviceImage.webp"
                     type="image/webp">
-            <img :src="service.image_id.src" :alt="service.image_id.name" class="w-100">
+            <img :src="serviceImage.src" :alt="serviceImage.name" class="w-100">
         </picture>
         <div class="absolute  flex column jc-sb h-100 w-100 p-3">
             <div class="label-price flex justify-content-end w-100">
@@ -21,6 +21,17 @@ export default {
     name: "index",
     props: {
         service: Object
+    },
+    computed: {
+        serviceImage() {
+            if (this.service.image_id) {
+                return this.service.image_id
+            }
+            if (this.service.images && this.service.images.length > 0) {
+                return this.service.images[0]
+            }
+            return null
+        }
     },
     methods:{
         showModal(service){

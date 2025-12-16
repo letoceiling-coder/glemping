@@ -16,7 +16,7 @@
                     </div>
                 </div>
                 <div class="row mt-4">
-                    <div class="col-md-4 col-12" v-for="service in getField('collect-service').resource.data">
+                    <div class="col-md-4 col-12" v-for="service in validServices" :key="service.id || service.uid">
                         <Services :service="service"/>
                     </div>
                 </div>
@@ -82,6 +82,20 @@ export default {
     },
     data() {
         return {}
+    },
+    computed: {
+        validServices() {
+            const collectServiceField = this.getField('collect-service')
+            if (!collectServiceField || !collectServiceField.resource || !collectServiceField.resource.data) {
+                return []
+            }
+            const services = collectServiceField.resource.data
+            return services.filter(service => {
+                if (!service) return false
+                // Показываем если есть image_id или хотя бы одно изображение в массиве images
+                return service.image_id || (service.images && Array.isArray(service.images) && service.images.length > 0)
+            })
+        }
     },
     methods: {
         hideModal(e) {
