@@ -25,8 +25,8 @@
 
 
     </div>
-    <div class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-         aria-hidden="true" id="modal-signUpService">
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+         id="modal-signUpService">
         <div class="modal-dialog modal-xl">
 
             <div class="modal-content">
@@ -53,12 +53,12 @@
                                 </div>
 
                             </div>
-                            <div class="col-md-6 col-sm-12 col-12">
+                            <div class="col-md-6 col-sm-12 col-12" v-if="serviceImage">
                                 <picture>
-                                    <source :srcset="this.storage.service.image_id.webp"
+                                    <source :srcset="serviceImage.webp"
                                             type="image/webp">
-                                    <img :src="this.storage.service.image_id.src"
-                                         :alt="this.storage.service.image_id.name" class="w-100 pb-3">
+                                    <img :src="serviceImage.src"
+                                         :alt="serviceImage.name" class="w-100 pb-3">
                                 </picture>
                             </div>
                         </div>
@@ -95,6 +95,16 @@ export default {
                 // Показываем если есть image_id или хотя бы одно изображение в массиве images
                 return service.image_id || (service.images && Array.isArray(service.images) && service.images.length > 0)
             })
+        },
+        serviceImage() {
+            if (!this.storage.service) return null
+            if (this.storage.service.image_id) {
+                return this.storage.service.image_id
+            }
+            if (this.storage.service.images && Array.isArray(this.storage.service.images) && this.storage.service.images.length > 0) {
+                return this.storage.service.images[0]
+            }
+            return null
         }
     },
     methods: {

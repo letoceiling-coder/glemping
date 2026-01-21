@@ -36,7 +36,10 @@ export default {
     methods:{
         showModal(service){
             this.storage.service = service
-            $('#modal-signUpService').modal('toggle')
+            // Используем $nextTick чтобы Vue успел обновить computed свойства перед открытием модального окна
+            this.$nextTick(() => {
+                $('#modal-signUpService').modal('show')
+            })
         }
     }
 }

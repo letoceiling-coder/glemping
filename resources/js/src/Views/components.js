@@ -14,6 +14,9 @@ import RegisterSettings from '/resources/js/src/Views/Auth/Register/settings.js'
 
 //////////////////////////////////FOOTERS////////////////////////////////////
 
+import FooterOne from '/resources/js/src/Views/Footers/FooterOne/index.vue';
+import FooterOneSettings from '/resources/js/src/Views/Footers/FooterOne/settings.js';
+
 //////////////////////////////////FOOTERS////////////////////////////////////
 
 //////////////////////////////////COMPONENTS////////////////////////////////////
@@ -137,6 +140,7 @@ const settingsComponent = {
     Forget: ForgetSettings,
 
     Header: HeaderSettings,
+    FooterOne: FooterOneSettings,
 
     CatalogTemplate: CatalogTemplateSettings,
     Booking: BookingSettings,
@@ -163,6 +167,8 @@ const comp = {
     Forget,
 
     Header,
+
+    FooterOne,
 
     CatalogTemplate,
     Booking,
